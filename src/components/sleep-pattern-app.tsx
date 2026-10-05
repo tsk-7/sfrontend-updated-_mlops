@@ -80,15 +80,13 @@ function BackendStatus() {
         const flags = Object.entries(body).filter(([key, value]) => /available/i.test(key) && typeof value === "boolean");
         const unavailable = flags.filter(([, value]) => !value).map(([key]) => key.replaceAll("_", " "));
         const healthy = ["ok", "healthy", "ready", "available"].includes(String(body.status ?? "").toLowerCase());
-        if (!healthy || unavailable.length || body.sleep_database_configured === false) {
+        if (!healthy) {
           setStatus("offline");
-          setDetail(body.sleep_database_configured === false
-            ? "Sleep database is not configured."
-            : unavailable.length ? `${unavailable.join(", ")} unavailable` : "Backend is currently unavailable.");
+          setDetail("Backend is currently unavailable.");
           return;
         }
         setStatus("connected");
-        setDetail("Connected to FastAPI");
+        setDetail(unavailable.length ? `Connected to FastAPI; ${unavailable.join(", ")} unavailable` : "Connected to FastAPI");
       } catch {
         if (!active) return;
         setStatus("offline");
